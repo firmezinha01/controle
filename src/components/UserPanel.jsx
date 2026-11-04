@@ -10,7 +10,6 @@ import {
   ArrowUpRight,
   Filter,
   Search,
-  Download,
   Printer,
   Calendar,
   CheckCircle,
@@ -60,7 +59,7 @@ export default function UserPanel({ viewAsUserId }) {
         })
       ]);
 
-      setTransactions(txList);
+      setTransactions(txList || []);
       setSummary(summaryData);
     } catch (err) {
       setError(err.message || 'Erro ao carregar dados do painel.');
@@ -73,7 +72,6 @@ export default function UserPanel({ viewAsUserId }) {
     loadData();
   }, [activeTab, monthFilter, statusFilter, viewAsUserId]);
 
-  // Busca com debounce leve
   useEffect(() => {
     const timer = setTimeout(() => {
       loadData();
@@ -150,12 +148,10 @@ export default function UserPanel({ viewAsUserId }) {
     document.body.removeChild(link);
   };
 
-  // Imprimir
   const handlePrint = () => {
     window.print();
   };
 
-  // Gera lista dos últimos 12 meses para o seletor
   const monthOptions = useMemo(() => {
     const list = [{ label: 'Todos os Períodos', value: 'all' }];
     const now = new Date();
@@ -172,23 +168,42 @@ export default function UserPanel({ viewAsUserId }) {
   }, []);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Topo com Título e Botões de Ação */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 no-print">
-        <div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            Controle de Entradas &amp; Saídas
-          </h2>
-          <p className="text-slate-500 text-sm mt-0.5">
-            Acompanhe pagamentos, recebimentos e saldo em tempo real
-          </p>
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8">
+      {/* Topo com Título e Ações Rápidas */}
+      <div className="flex flex-col gap-4 mb-5 sm:mb-6 no-print">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              Controle de Entradas &amp; Saídas
+            </h2>
+            <p className="text-slate-500 text-xs sm:text-sm mt-0.5">
+              Recebimentos, despesas e saldo em tempo real
+            </p>
+          </div>
+
+          <div className="flex items-center gap-1.5 md:hidden">
+            <button
+              onClick={handleExportCSV}
+              title="Exportar CSV"
+              className="p-2 bg-white text-slate-700 rounded-xl border border-slate-200 shadow-sm"
+            >
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+            </button>
+            <button
+              onClick={handlePrint}
+              title="Imprimir"
+              className="p-2 bg-white text-slate-700 rounded-xl border border-slate-200 shadow-sm"
+            >
+              <Printer className="w-4 h-4 text-slate-500" />
+            </button>
+          </div>
         </div>
 
-        {/* Botões Rápidos de Cadastro */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        {/* Botões Rápidos de Ação: Totalmente Otimizados para Celular */}
+        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2.5">
           <button
             onClick={() => handleOpenNewModal('entrada')}
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md shadow-emerald-600/20 transition active:scale-95"
+            className="flex items-center justify-center gap-1.5 py-3 px-3 sm:px-4 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md shadow-emerald-600/20 transition"
           >
             <ArrowDownLeft className="w-4 h-4 stroke-[2.5]" />
             <span>+ Nova Entrada</span>
@@ -196,7 +211,7 @@ export default function UserPanel({ viewAsUserId }) {
 
           <button
             onClick={() => handleOpenNewModal('saida')}
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md shadow-rose-600/20 transition active:scale-95"
+            className="flex items-center justify-center gap-1.5 py-3 px-3 sm:px-4 bg-rose-600 hover:bg-rose-500 active:scale-95 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md shadow-rose-600/20 transition"
           >
             <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
             <span>+ Nova Saída</span>
@@ -205,30 +220,30 @@ export default function UserPanel({ viewAsUserId }) {
           <button
             onClick={handleExportCSV}
             title="Exportar dados para Excel / CSV"
-            className="flex items-center gap-1.5 px-3 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl border border-slate-200 shadow-sm transition"
+            className="hidden md:flex items-center gap-1.5 px-3 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl border border-slate-200 shadow-sm transition"
           >
             <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-            <span className="hidden sm:inline">Exportar CSV</span>
+            <span>Exportar CSV</span>
           </button>
 
           <button
             onClick={handlePrint}
             title="Imprimir relatório"
-            className="flex items-center gap-1.5 px-3 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl border border-slate-200 shadow-sm transition"
+            className="hidden md:flex items-center gap-1.5 px-3 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl border border-slate-200 shadow-sm transition"
           >
             <Printer className="w-4 h-4 text-slate-500" />
-            <span className="hidden sm:inline">Imprimir</span>
+            <span>Imprimir</span>
           </button>
         </div>
       </div>
 
-      {/* Cards de Resumo Financeiro (Soma e Subtração em Tempo Real) */}
+      {/* Cards de Resumo Financeiro (Soma e Subtração) */}
       <SummaryCards summary={summary} />
 
-      {/* Barra de Filtros e Busca */}
-      <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm mb-6 no-print space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
+      {/* Barra de Filtros e Busca Responsiva */}
+      <div className="bg-white rounded-2xl p-3 sm:p-4 border border-slate-200 shadow-sm mb-5 sm:mb-6 no-print space-y-3">
         {/* Busca por texto */}
-        <div className="relative flex-1 max-w-sm">
+        <div className="relative w-full">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
             <Search className="w-4 h-4" />
           </div>
@@ -237,18 +252,18 @@ export default function UserPanel({ viewAsUserId }) {
             placeholder="Buscar por descrição, categoria..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-xs sm:text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
+            className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-xs sm:text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
           />
         </div>
 
-        {/* Filtros de Mês e Status */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5">
-            <Calendar className="w-4 h-4 text-slate-500" />
+        {/* Filtros em Grid no Mobile */}
+        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
+          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 w-full sm:w-auto">
+            <Calendar className="w-4 h-4 text-slate-500 shrink-0" />
             <select
               value={monthFilter}
               onChange={(e) => setMonthFilter(e.target.value)}
-              className="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
+              className="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer w-full"
             >
               {monthOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -258,15 +273,15 @@ export default function UserPanel({ viewAsUserId }) {
             </select>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5">
-            <Filter className="w-4 h-4 text-slate-500" />
+          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 w-full sm:w-auto">
+            <Filter className="w-4 h-4 text-slate-500 shrink-0" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
+              className="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer w-full"
             >
-              <option value="all">Todos os Status</option>
-              <option value="completed">Concluídos / Quitados</option>
+              <option value="all">Todos Status</option>
+              <option value="completed">Concluídos</option>
               <option value="pending">Pendentes</option>
             </select>
           </div>
@@ -274,28 +289,29 @@ export default function UserPanel({ viewAsUserId }) {
           <button
             onClick={loadData}
             title="Atualizar dados"
-            className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition"
+            className="col-span-2 sm:col-span-1 py-2 sm:p-2.5 text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 sm:bg-transparent rounded-xl transition flex items-center justify-center gap-1 text-xs font-semibold"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <span className="sm:hidden">Atualizar</span>
           </button>
         </div>
       </div>
 
-      {/* SISTEMA DE ABAS (REQUISITO FUNDAMENTAL DO USUÁRIO) */}
-      <div className="mb-6 border-b border-slate-200 no-print">
-        <div className="flex items-center gap-2 overflow-x-auto pb-px">
+      {/* ABAS (TODAS, SOMENTE ENTRADAS, SOMENTE SAÍDAS, GRÁFICOS) */}
+      <div className="mb-5 sm:mb-6 border-b border-slate-200 no-print overflow-x-auto">
+        <div className="flex items-center gap-1 sm:gap-2 min-w-max pb-px">
           {/* Aba 1: Entradas e Saídas ao mesmo tempo */}
           <button
             onClick={() => setActiveTab('all')}
-            className={`flex items-center gap-2 px-4 py-3 text-xs sm:text-sm font-bold border-b-2 transition whitespace-nowrap ${
+            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold border-b-2 transition whitespace-nowrap ${
               activeTab === 'all'
                 ? 'border-sky-600 text-sky-600 bg-sky-50/50 rounded-t-xl'
-                : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
-            <Layers className="w-4 h-4" />
-            <span>Todas as Movimentações</span>
-            <span className="ml-1 text-[11px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+            <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span>Todas</span>
+            <span className="ml-1 text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
               {summary?.countTotal || 0}
             </span>
           </button>
@@ -303,15 +319,15 @@ export default function UserPanel({ viewAsUserId }) {
           {/* Aba 2: Somente Entradas */}
           <button
             onClick={() => setActiveTab('entrada')}
-            className={`flex items-center gap-2 px-4 py-3 text-xs sm:text-sm font-bold border-b-2 transition whitespace-nowrap ${
+            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold border-b-2 transition whitespace-nowrap ${
               activeTab === 'entrada'
                 ? 'border-emerald-600 text-emerald-600 bg-emerald-50/50 rounded-t-xl'
-                : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
-            <ArrowDownLeft className="w-4 h-4 text-emerald-600" />
-            <span>Somente Entradas</span>
-            <span className="ml-1 text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+            <ArrowDownLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
+            <span>Entradas</span>
+            <span className="ml-1 text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
               {summary?.countEntradas || 0}
             </span>
           </button>
@@ -319,102 +335,98 @@ export default function UserPanel({ viewAsUserId }) {
           {/* Aba 3: Somente Saídas */}
           <button
             onClick={() => setActiveTab('saida')}
-            className={`flex items-center gap-2 px-4 py-3 text-xs sm:text-sm font-bold border-b-2 transition whitespace-nowrap ${
+            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold border-b-2 transition whitespace-nowrap ${
               activeTab === 'saida'
                 ? 'border-rose-600 text-rose-600 bg-rose-50/50 rounded-t-xl'
-                : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
-            <ArrowUpRight className="w-4 h-4 text-rose-600" />
-            <span>Somente Saídas</span>
-            <span className="ml-1 text-[11px] px-2 py-0.5 rounded-full bg-rose-100 text-rose-800">
+            <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-600" />
+            <span>Saídas</span>
+            <span className="ml-1 text-[10px] px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-800">
               {summary?.countSaidas || 0}
             </span>
           </button>
 
-          {/* Aba 4: Gráficos e Relatórios */}
+          {/* Aba 4: Gráficos */}
           <button
             onClick={() => setActiveTab('charts')}
-            className={`flex items-center gap-2 px-4 py-3 text-xs sm:text-sm font-bold border-b-2 transition whitespace-nowrap ${
+            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold border-b-2 transition whitespace-nowrap ${
               activeTab === 'charts'
                 ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50 rounded-t-xl'
-                : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
-            <BarChart3 className="w-4 h-4 text-indigo-600" />
-            <span>Gráficos &amp; Análise</span>
+            <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600" />
+            <span>Gráficos</span>
           </button>
         </div>
       </div>
 
-      {/* Conteúdo da Aba Ativa */}
+      {/* Conteúdo */}
       {activeTab === 'charts' ? (
         <ChartsView summary={summary} />
       ) : (
-        /* TABELA DE MOVIMENTAÇÕES */
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          {/* Header informativo da Tabela dependendo da aba */}
-          <div className="px-6 py-4 bg-slate-50/60 border-b border-slate-200 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                {activeTab === 'all' && 'Extrato Unificado (Entradas e Saídas Somadas e Subtraídas)'}
-                {activeTab === 'entrada' && 'Extrato Exclusivo de Entradas (Recebimentos)'}
-                {activeTab === 'saida' && 'Extrato Exclusivo de Saídas (Pagamentos)'}
-              </span>
-            </div>
+          {/* Subheader com Totalizador */}
+          <div className="px-4 py-3 bg-slate-50/70 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
+              {activeTab === 'all' && 'Extrato Unificado (Soma e Subtração)'}
+              {activeTab === 'entrada' && 'Extrato Exclusivo de Entradas'}
+              {activeTab === 'saida' && 'Extrato Exclusivo de Saídas'}
+            </span>
 
-            {/* Subtotalizador contextual da aba */}
-            <div className="text-right text-xs">
+            <div className="text-xs">
               {activeTab === 'entrada' && (
-                <span className="font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                   Total Entradas: {formatCurrency(summary?.totalEntradas || 0)}
                 </span>
               )}
               {activeTab === 'saida' && (
-                <span className="font-bold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200">
+                <span className="font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
                   Total Saídas: {formatCurrency(summary?.totalSaidas || 0)}
                 </span>
               )}
               {activeTab === 'all' && (
-                <span className={`font-bold px-2.5 py-1 rounded-full border ${
+                <span className={`font-bold px-2 py-0.5 rounded-full border ${
                   (summary?.saldo || 0) >= 0
                     ? 'text-sky-700 bg-sky-50 border-sky-200'
                     : 'text-rose-700 bg-rose-50 border-rose-200'
                 }`}>
-                  Saldo Resultante: {formatCurrency(summary?.saldo || 0)}
+                  Saldo: {formatCurrency(summary?.saldo || 0)}
                 </span>
               )}
             </div>
           </div>
 
-          {/* Estado de Carregamento */}
+          {/* Carregando */}
           {loading && (
-            <div className="py-16 text-center text-slate-400">
+            <div className="py-14 text-center text-slate-400">
               <div className="w-8 h-8 border-3 border-sky-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
               <p className="text-xs font-medium">Carregando movimentações...</p>
             </div>
           )}
 
-          {/* Estado Vazio */}
+          {/* Vazio */}
           {!loading && transactions.length === 0 && (
-            <div className="py-16 text-center px-4">
-              <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mx-auto mb-3">
-                <Layers className="w-8 h-8" />
+            <div className="py-12 sm:py-16 text-center px-4">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mx-auto mb-3">
+                <Layers className="w-7 h-7 sm:w-8 sm:h-8" />
               </div>
-              <h3 className="text-base font-bold text-slate-800">Nenhum lançamento encontrado</h3>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 mb-5">
-                Não há registros correspondentes aos filtros selecionados. Comece adicionando uma nova entrada ou saída.
+              <h3 className="text-sm sm:text-base font-bold text-slate-800">Nenhum lançamento no momento</h3>
+              <p className="text-xs text-slate-500 max-w-xs mx-auto mt-1 mb-5">
+                Não há registros com os filtros atuais. Adicione sua primeira entrada ou saída.
               </p>
-              <div className="flex justify-center gap-3">
+              <div className="flex justify-center gap-2.5">
                 <button
                   onClick={() => handleOpenNewModal('entrada')}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow transition"
+                  className="px-3.5 py-2 bg-emerald-600 text-white text-xs font-bold rounded-xl shadow"
                 >
                   + Nova Entrada
                 </button>
                 <button
                   onClick={() => handleOpenNewModal('saida')}
-                  className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl shadow transition"
+                  className="px-3.5 py-2 bg-rose-600 text-white text-xs font-bold rounded-xl shadow"
                 >
                   + Nova Saída
                 </button>
@@ -422,9 +434,93 @@ export default function UserPanel({ viewAsUserId }) {
             </div>
           )}
 
-          {/* Tabela de Dados */}
+          {/* LISTA EM CARDS NO CELULAR (< md) */}
           {!loading && transactions.length > 0 && (
-            <div className="overflow-x-auto">
+            <div className="block md:hidden divide-y divide-slate-100">
+              {transactions.map((tx) => {
+                const isEntrada = tx.type === 'entrada';
+                const isCompleted = tx.status === 'completed';
+
+                return (
+                  <div key={tx.id} className="p-3.5 hover:bg-slate-50/70 transition">
+                    <div className="flex items-start justify-between gap-2 mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                          isEntrada ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+                        }`}>
+                          {isEntrada ? (
+                            <ArrowDownLeft className="w-4 h-4 stroke-[2.5]" />
+                          ) : (
+                            <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
+                          )}
+                        </div>
+                        <div>
+                          <div className="font-bold text-slate-900 text-xs sm:text-sm line-clamp-1">
+                            {tx.description}
+                          </div>
+                          <div className="text-[10px] text-slate-400">
+                            {formatDate(tx.date)} &bull; {tx.category || '-'}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className={`font-black text-xs sm:text-sm text-right shrink-0 ${
+                        isEntrada ? 'text-emerald-600' : 'text-rose-600'
+                      }`}>
+                        {isEntrada ? '+ ' : '- '}
+                        {formatCurrency(tx.amount)}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-50 text-xs">
+                      <button
+                        onClick={() => handleToggleStatus(tx.id)}
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          isCompleted
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : 'bg-amber-50 text-amber-700 border border-amber-200'
+                        }`}
+                      >
+                        {isCompleted ? (
+                          <>
+                            <CheckCircle className="w-3 h-3 text-emerald-600" />
+                            <span>{isEntrada ? 'Recebido' : 'Pago'}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Clock className="w-3 h-3 text-amber-600" />
+                            <span>{isEntrada ? 'A Receber' : 'A Pagar'}</span>
+                          </>
+                        )}
+                      </button>
+
+                      <div className="flex items-center gap-1 text-slate-400">
+                        <span className="text-[10px] text-slate-400 mr-1.5">
+                          {tx.paymentMethod || 'Pix'}
+                        </span>
+                        <button
+                          onClick={() => handleEdit(tx)}
+                          className="p-1 hover:text-sky-600 rounded"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(tx.id, tx.description)}
+                          className="p-1 hover:text-rose-600 rounded"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* TABELA TRADICIONAL EM DESKTOP (>= md) */}
+          {!loading && transactions.length > 0 && (
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50/40 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
@@ -444,16 +540,10 @@ export default function UserPanel({ viewAsUserId }) {
                     const isCompleted = tx.status === 'completed';
 
                     return (
-                      <tr
-                        key={tx.id}
-                        className="hover:bg-slate-50/70 transition-colors group"
-                      >
-                        {/* Data */}
+                      <tr key={tx.id} className="hover:bg-slate-50/70 transition-colors">
                         <td className="py-3 px-4 text-xs font-medium text-slate-600 whitespace-nowrap">
                           {formatDate(tx.date)}
                         </td>
-
-                        {/* Tipo */}
                         <td className="py-3 px-4 whitespace-nowrap">
                           {isEntrada ? (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -467,44 +557,27 @@ export default function UserPanel({ viewAsUserId }) {
                             </span>
                           )}
                         </td>
-
-                        {/* Descrição e Notas */}
                         <td className="py-3 px-4">
-                          <div className="font-semibold text-slate-800 text-sm">
-                            {tx.description}
-                          </div>
-                          {tx.notes && (
-                            <div className="text-[11px] text-slate-400 truncate max-w-xs">
-                              {tx.notes}
-                            </div>
-                          )}
+                          <div className="font-semibold text-slate-800 text-sm">{tx.description}</div>
+                          {tx.notes && <div className="text-[11px] text-slate-400 truncate max-w-xs">{tx.notes}</div>}
                         </td>
-
-                        {/* Categoria */}
                         <td className="py-3 px-4 text-xs text-slate-600 whitespace-nowrap">
-                          <span className="bg-slate-100 px-2.5 py-1 rounded-md font-medium text-slate-700 border border-slate-200/60">
+                          <span className="bg-slate-100 px-2 py-0.5 rounded font-medium text-slate-700">
                             {tx.category || '-'}
                           </span>
                         </td>
-
-                        {/* Forma de Pagamento */}
                         <td className="py-3 px-4 text-xs text-slate-600 whitespace-nowrap">
                           {tx.paymentMethod || 'Pix'}
                         </td>
-
-                        {/* Valor Formatado com cor e sinal */}
                         <td className={`py-3 px-4 text-right whitespace-nowrap font-bold text-sm ${
                           isEntrada ? 'text-emerald-600' : 'text-rose-600'
                         }`}>
                           {isEntrada ? '+ ' : '- '}
                           {formatCurrency(tx.amount)}
                         </td>
-
-                        {/* Status com botão interativo */}
                         <td className="py-3 px-4 text-center whitespace-nowrap">
                           <button
                             onClick={() => handleToggleStatus(tx.id)}
-                            title="Clique para alternar o status"
                             className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold cursor-pointer transition ${
                               isCompleted
                                 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
@@ -524,21 +597,16 @@ export default function UserPanel({ viewAsUserId }) {
                             )}
                           </button>
                         </td>
-
-                        {/* Ações */}
                         <td className="py-3 px-4 text-right whitespace-nowrap no-print">
                           <div className="flex items-center justify-end gap-1">
                             <button
                               onClick={() => handleEdit(tx)}
-                              title="Editar movimentação"
                               className="p-1.5 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition"
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
-
                             <button
                               onClick={() => handleDelete(tx.id, tx.description)}
-                              title="Excluir movimentação"
                               className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -555,7 +623,7 @@ export default function UserPanel({ viewAsUserId }) {
         </div>
       )}
 
-      {/* Modal de Cadastro / Edição de Movimentação */}
+      {/* Modal */}
       <TransactionModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

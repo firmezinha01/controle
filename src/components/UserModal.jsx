@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, User, Lock, KeyRound, Sparkles, Shield, FileText } from 'lucide-react';
+import { X, User, Lock, Sparkles } from 'lucide-react';
 
 export default function UserModal({ isOpen, onClose, onSave, initialData }) {
   const [name, setName] = useState('');
@@ -32,7 +32,6 @@ export default function UserModal({ isOpen, onClose, onSave, initialData }) {
 
   if (!isOpen) return null;
 
-  // Gerador de senha amigável e segura para o admin repassar ao usuário
   const generateRandomPassword = () => {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
     let result = '';
@@ -79,27 +78,27 @@ export default function UserModal({ isOpen, onClose, onSave, initialData }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div className="bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-100 max-h-[92vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/50">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-100 bg-slate-50/50 shrink-0">
           <div>
-            <h3 className="text-lg font-bold text-slate-800">
-              {initialData ? 'Editar Usuário' : 'Novo Usuário do Sistema'}
+            <h3 className="text-base sm:text-lg font-bold text-slate-800">
+              {initialData ? 'Editar Usuário' : 'Novo Usuário'}
             </h3>
-            <p className="text-xs text-slate-500">
-              Gere o login e a senha para o usuário gerenciar suas finanças
+            <p className="text-[11px] sm:text-xs text-slate-500">
+              Gere o login e a senha para o usuário acessar
             </p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-3.5 overflow-y-auto">
           {error && (
             <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
               <span>⚠️</span>
@@ -109,7 +108,7 @@ export default function UserModal({ isOpen, onClose, onSave, initialData }) {
 
           {/* Nome Completo */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
               Nome Completo
             </label>
             <div className="relative">
@@ -122,14 +121,14 @@ export default function UserModal({ isOpen, onClose, onSave, initialData }) {
                 placeholder="Ex: Carlos Eduardo Silva"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
+                className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white"
               />
             </div>
           </div>
 
           {/* Login de Acesso */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
               Login de Acesso
             </label>
             <div className="relative">
@@ -139,22 +138,19 @@ export default function UserModal({ isOpen, onClose, onSave, initialData }) {
               <input
                 type="text"
                 required
-                placeholder="Ex: carlos.silva ou carlos@email.com"
+                placeholder="Ex: carlos.silva"
                 value={username}
                 onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s+/g, ''))}
-                className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
+                className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white"
               />
             </div>
-            <p className="text-[11px] text-slate-400 mt-1">
-              O usuário usará este login exato para acessar o painel dele.
-            </p>
           </div>
 
-          {/* Senha (obrigatória na criação, opcional na edição) */}
+          {/* Senha */}
           {!initialData && (
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Senha Inicial
                 </label>
                 <button
@@ -163,7 +159,7 @@ export default function UserModal({ isOpen, onClose, onSave, initialData }) {
                   className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
                 >
                   <Sparkles className="w-3 h-3 text-amber-500" />
-                  Gerar Senha Automática
+                  Gerar Automática
                 </button>
               </div>
               <div className="relative">
@@ -173,70 +169,67 @@ export default function UserModal({ isOpen, onClose, onSave, initialData }) {
                 <input
                   type="text"
                   required={!initialData}
-                  placeholder="Defina uma senha (ex: 123456)"
+                  placeholder="Defina uma senha"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
+                  className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white"
                 />
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                Anote ou envie esta senha para o usuário acessar o sistema.
-              </p>
             </div>
           )}
 
-          {/* Cargo / Observação */}
+          {/* Observações */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
               Departamento / Observações (Opcional)
             </label>
             <input
               type="text"
-              placeholder="Ex: Vendas, Filial 1, Consultoria..."
+              placeholder="Ex: Vendas, Filial 1..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white"
             />
           </div>
 
-          {/* Status (Ativo / Inativo) */}
+          {/* Status */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
               Status do Usuário
             </label>
             <div className="flex gap-4">
-              <label className="flex items-center gap-2 cursor-pointer text-sm">
+              <label className="flex items-center gap-1.5 cursor-pointer text-xs sm:text-sm">
                 <input
                   type="radio"
-                  name="userStatus"
+                  name="modalUserStatus"
                   value="active"
                   checked={status === 'active'}
                   onChange={() => setStatus('active')}
                   className="text-emerald-600 focus:ring-emerald-500"
                 />
-                <span className="text-slate-700 font-medium">Ativo (Pode Acessar)</span>
+                <span className="text-slate-700 font-medium">Ativo</span>
               </label>
 
-              <label className="flex items-center gap-2 cursor-pointer text-sm">
+              <label className="flex items-center gap-1.5 cursor-pointer text-xs sm:text-sm">
                 <input
                   type="radio"
-                  name="userStatus"
+                  name="modalUserStatus"
                   value="inactive"
                   checked={status === 'inactive'}
                   onChange={() => setStatus('inactive')}
                   className="text-rose-600 focus:ring-rose-500"
                 />
-                <span className="text-slate-700 font-medium">Inativo (Bloqueado)</span>
+                <span className="text-slate-700 font-medium">Inativo</span>
               </label>
             </div>
           </div>
 
           {/* Rodapé */}
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
+          <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-2.5">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition"
+              className="px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-800 rounded-xl"
             >
               Cancelar
             </button>
@@ -244,12 +237,12 @@ export default function UserModal({ isOpen, onClose, onSave, initialData }) {
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2.5 rounded-xl font-bold text-sm text-white bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-600/20 transition flex items-center gap-2 disabled:opacity-60"
+              className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white bg-indigo-600 hover:bg-indigo-500 shadow-md transition flex items-center justify-center gap-2"
             >
               {loading ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               ) : (
-                <span>{initialData ? 'Salvar Usuário' : 'Cadastrar Usuário'}</span>
+                <span>{initialData ? 'Salvar' : 'Cadastrar'}</span>
               )}
             </button>
           </div>

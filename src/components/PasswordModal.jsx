@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Lock, KeyRound, Sparkles } from 'lucide-react';
+import { X, Lock, Sparkles } from 'lucide-react';
 
 export default function PasswordModal({ isOpen, onClose, onReset, user }) {
   const [newPassword, setNewPassword] = useState('');
@@ -37,24 +37,24 @@ export default function PasswordModal({ isOpen, onClose, onReset, user }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
-        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/50">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div className="bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-100 flex flex-col">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-100 bg-slate-50/50">
           <div>
-            <h3 className="text-lg font-bold text-slate-800">Redefinir Senha</h3>
-            <p className="text-xs text-slate-500">
+            <h3 className="text-base sm:text-lg font-bold text-slate-800">Redefinir Senha</h3>
+            <p className="text-[11px] sm:text-xs text-slate-500">
               Usuário: <strong className="text-slate-700">{user.name}</strong> (@{user.username})
             </p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
           {error && (
             <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
               <span>⚠️</span>
@@ -63,8 +63,8 @@ export default function PasswordModal({ isOpen, onClose, onReset, user }) {
           )}
 
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider">
                 Nova Senha
               </label>
               <button
@@ -86,19 +86,16 @@ export default function PasswordModal({ isOpen, onClose, onReset, user }) {
                 placeholder="Digite a nova senha"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition"
+                className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white"
               />
             </div>
-            <p className="text-[11px] text-slate-400 mt-1">
-              Copie esta senha para entregar ao usuário.
-            </p>
           </div>
 
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
+          <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-2.5">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition"
+              className="px-4 py-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-800 rounded-xl"
             >
               Cancelar
             </button>
@@ -106,7 +103,7 @@ export default function PasswordModal({ isOpen, onClose, onReset, user }) {
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2.5 rounded-xl font-bold text-sm text-white bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-600/20 transition flex items-center gap-2 disabled:opacity-60"
+              className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white bg-indigo-600 hover:bg-indigo-500 shadow-md transition flex items-center justify-center gap-2"
             >
               {loading ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

@@ -47,11 +47,6 @@ export const supabaseApi = {
       isValid = true;
     }
 
-    // Se for o usuário marcos.silva e a senha for 123456
-    if (!isValid && user.username === 'marcos.silva' && password === '123456') {
-      isValid = true;
-    }
-
     if (!isValid) {
       throw new Error('Login ou senha incorretos.');
     }
@@ -92,7 +87,7 @@ export const supabaseApi = {
 
     if (txErr) throw txErr;
 
-    return users.map(u => {
+    return (users || []).map(u => {
       const userTxs = (txs || []).filter(t => t.user_id === u.id);
       const totalEntradas = userTxs
         .filter(t => t.type === 'entrada')
