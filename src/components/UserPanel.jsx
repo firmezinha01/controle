@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import SummaryCards from './SummaryCards';
 import TransactionModal from './TransactionModal';
@@ -23,6 +24,9 @@ import {
 } from 'lucide-react';
 
 export default function UserPanel({ viewAsUserId }) {
+  const { user } = useAuth();
+  const effectiveUserId = viewAsUserId || user?.id;
+
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'entrada', 'saida', 'charts'
   const [transactions, setTransactions] = useState([]);
   const [summary, setSummary] = useState(null);
@@ -41,6 +45,11 @@ export default function UserPanel({ viewAsUserId }) {
 
   // Carrega transações e resumo
   const loadData = async () => {
+    if (!effectiveUserId) {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError('');
@@ -51,17 +60,18 @@ export default function UserPanel({ viewAsUserId }) {
           month: monthFilter,
           status: statusFilter,
           search: searchTerm,
-          viewAsUserId
+          viewAsUserId: effectiveUserId
         }),
         api.getSummary({
           month: monthFilter,
-          viewAsUserId
+          viewAsUserId: effectiveUserId
         })
       ]);
 
       setTransactions(txList || []);
       setSummary(summaryData);
     } catch (err) {
+      console.error('Erro ao carregar dados do painel:', err);
       setError(err.message || 'Erro ao carregar dados do painel.');
     } finally {
       setLoading(false);
@@ -70,7 +80,7 @@ export default function UserPanel({ viewAsUserId }) {
 
   useEffect(() => {
     loadData();
-  }, [activeTab, monthFilter, statusFilter, viewAsUserId]);
+  }, [activeTab, monthFilter, statusFilter, effectiveUserId]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -92,16 +102,16 @@ export default function UserPanel({ viewAsUserId }) {
 
   const handleSaveTransaction = async (txData) => {
     if (editingTransaction) {
-      await api.updateTransaction(editingTransaction.id, txData, viewAsUserId);
+      await api.updateTransaction(editingTransaction.id, txData, effectiveUserId);
     } else {
-      await api.createTransaction(txData, viewAsUserId);
+      await api.createTransaction(txData, effectiveUserId);
     }
     loadData();
   };
 
   const handleToggleStatus = async (id) => {
     try {
-      await api.toggleTransactionStatus(id, viewAsUserId);
+      await api.toggleTransactionStatus(id, effectiveUserId);
       loadData();
     } catch (err) {
       alert(err.message || 'Erro ao alternar status.');
@@ -111,7 +121,7 @@ export default function UserPanel({ viewAsUserId }) {
   const handleDelete = async (id, description) => {
     if (window.confirm(`Tem certeza que deseja excluir o lançamento "${description}"?`)) {
       try {
-        await api.deleteTransaction(id, viewAsUserId);
+        await api.deleteTransaction(id, effectiveUserId);
         loadData();
       } catch (err) {
         alert(err.message || 'Erro ao excluir lançamento.');
@@ -199,7 +209,7 @@ export default function UserPanel({ viewAsUserId }) {
           </div>
         </div>
 
-        {/* Botões Rápidos de Ação: Totalmente Otimizados para Celular */}
+        {/* Botões Rápidos de Ação */}
         <div className="grid grid-cols-2 sm:flex sm:items-center gap-2.5">
           <button
             onClick={() => handleOpenNewModal('entrada')}
@@ -237,12 +247,18 @@ export default function UserPanel({ viewAsUserId }) {
         </div>
       </div>
 
+      {error && (
+        <div className="mb-5 p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm rounded-xl flex items-center gap-2">
+          <span>⚠️</span>
+          <span>{error}</span>
+        </div>
+      )}
+
       {/* Cards de Resumo Financeiro (Soma e Subtração) */}
       <SummaryCards summary={summary} />
 
       {/* Barra de Filtros e Busca Responsiva */}
       <div className="bg-white rounded-2xl p-3 sm:p-4 border border-slate-200 shadow-sm mb-5 sm:mb-6 no-print space-y-3">
-        {/* Busca por texto */}
         <div className="relative w-full">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
             <Search className="w-4 h-4" />
@@ -256,7 +272,6 @@ export default function UserPanel({ viewAsUserId }) {
           />
         </div>
 
-        {/* Filtros em Grid no Mobile */}
         <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
           <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 w-full sm:w-auto">
             <Calendar className="w-4 h-4 text-slate-500 shrink-0" />
@@ -300,7 +315,6 @@ export default function UserPanel({ viewAsUserId }) {
       {/* ABAS (TODAS, SOMENTE ENTRADAS, SOMENTE SAÍDAS, GRÁFICOS) */}
       <div className="mb-5 sm:mb-6 border-b border-slate-200 no-print overflow-x-auto">
         <div className="flex items-center gap-1 sm:gap-2 min-w-max pb-px">
-          {/* Aba 1: Entradas e Saídas ao mesmo tempo */}
           <button
             onClick={() => setActiveTab('all')}
             className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold border-b-2 transition whitespace-nowrap ${
@@ -316,7 +330,6 @@ export default function UserPanel({ viewAsUserId }) {
             </span>
           </button>
 
-          {/* Aba 2: Somente Entradas */}
           <button
             onClick={() => setActiveTab('entrada')}
             className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold border-b-2 transition whitespace-nowrap ${
@@ -332,7 +345,6 @@ export default function UserPanel({ viewAsUserId }) {
             </span>
           </button>
 
-          {/* Aba 3: Somente Saídas */}
           <button
             onClick={() => setActiveTab('saida')}
             className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold border-b-2 transition whitespace-nowrap ${
@@ -348,7 +360,6 @@ export default function UserPanel({ viewAsUserId }) {
             </span>
           </button>
 
-          {/* Aba 4: Gráficos */}
           <button
             onClick={() => setActiveTab('charts')}
             className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold border-b-2 transition whitespace-nowrap ${
@@ -415,7 +426,7 @@ export default function UserPanel({ viewAsUserId }) {
               </div>
               <h3 className="text-sm sm:text-base font-bold text-slate-800">Nenhum lançamento no momento</h3>
               <p className="text-xs text-slate-500 max-w-xs mx-auto mt-1 mb-5">
-                Não há registros com os filtros atuais. Adicione sua primeira entrada ou saída.
+                Não há registros para o período selecionado. Adicione sua primeira entrada ou saída.
               </p>
               <div className="flex justify-center gap-2.5">
                 <button
@@ -434,7 +445,7 @@ export default function UserPanel({ viewAsUserId }) {
             </div>
           )}
 
-          {/* LISTA EM CARDS NO CELULAR (< md) */}
+          {/* LISTA EM CARDS NO CELULAR */}
           {!loading && transactions.length > 0 && (
             <div className="block md:hidden divide-y divide-slate-100">
               {transactions.map((tx) => {
@@ -518,7 +529,7 @@ export default function UserPanel({ viewAsUserId }) {
             </div>
           )}
 
-          {/* TABELA TRADICIONAL EM DESKTOP (>= md) */}
+          {/* TABELA EM DESKTOP */}
           {!loading && transactions.length > 0 && (
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse">

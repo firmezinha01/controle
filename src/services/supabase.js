@@ -42,7 +42,7 @@ export const supabaseApi = {
       isValid = user.password_hash === password;
     }
 
-    // Se for o admin padrão e a senha for 123456
+    // Fallback de compatibilidade para admin
     if (!isValid && user.username === 'admin' && password === '123456') {
       isValid = true;
     }
@@ -248,12 +248,33 @@ export const supabaseApi = {
     if (params.category && params.category !== 'all') {
       query = query.eq('category', params.category);
     }
+
+    // Cálculo exato do último dia do mês para o PostgreSQL não dar erro 400 (ex: 31 de novembro)
     if (params.month && params.month !== 'all') {
-      query = query.gte('date', `${params.month}-01`).lte('date', `${params.month}-31`);
+      const parts = params.month.split('-');
+      if (parts.length === 2) {
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10);
+        // Dia 0 do mês seguinte é o último dia do mês atual
+        const lastDay = new Date(y, m, 0).getDate();
+        const startDate = `${params.month}-01`;
+        const endDate = `${params.month}-${String(lastDay).padStart(2, '0')}`;
+        query = query.gte('date', startDate).lte('date', endDate);
+      }
+    }
+
+    if (params.startDate) {
+      query = query.gte('date', params.startDate);
+    }
+    if (params.endDate) {
+      query = query.lte('date', params.endDate);
     }
 
     const { data, error } = await query;
-    if (error) throw error;
+    if (error) {
+      console.error('Erro ao buscar transações no Supabase:', error);
+      throw error;
+    }
 
     let list = (data || []).map(t => ({
       id: t.id,
@@ -351,6 +372,10 @@ export const supabaseApi = {
     const rawUser = localStorage.getItem('fc_user');
     const loggedUser = rawUser ? JSON.parse(rawUser) : null;
     const targetUserId = viewAsUserId || loggedUser?.id;
+
+    if (!targetUserId) {
+      throw new Error('Usuário não identificado.');
+    }
 
     const { data, error } = await supabase
       .from('app_transactions')

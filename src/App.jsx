@@ -52,10 +52,10 @@ export default function App() {
           currentView === 'admin_users' ? (
             <AdminPanel onSelectUserToView={handleSelectUserToView} />
           ) : (
-            <UserPanel viewAsUserId={viewingUser ? viewingUser.id : user.id} />
+            <UserPanel viewAsUserId={viewingUser ? viewingUser.id : user?.id} />
           )
         ) : (
-          <UserPanel />
+          <UserPanel viewAsUserId={user?.id} />
         )}
       </main>
 
