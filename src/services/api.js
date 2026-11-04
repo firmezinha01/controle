@@ -1,3 +1,5 @@
+import { isSupabaseConfigured, supabaseApi } from './supabase';
+
 const API_BASE = '/api';
 
 function getHeaders() {
@@ -11,8 +13,8 @@ function getHeaders() {
   return headers;
 }
 
-export const api = {
-  // Autenticação
+// Implementação com Fetch HTTP (para desenvolvimento local com Express)
+const httpApi = {
   async login(username, password) {
     const res = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
@@ -21,6 +23,7 @@ export const api = {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Erro ao realizar login.');
+    localStorage.setItem('fc_user', JSON.stringify(data.user));
     return data;
   },
 
@@ -32,7 +35,6 @@ export const api = {
     return res.json();
   },
 
-  // Admin: Gestão de Usuários
   async getAdminUsers() {
     const res = await fetch(`${API_BASE}/admin/users`, {
       headers: getHeaders()
@@ -94,7 +96,6 @@ export const api = {
     return data;
   },
 
-  // Movimentações Financeiras (Entradas e Saídas)
   async getTransactions(params = {}) {
     const query = new URLSearchParams();
     if (params.type && params.type !== 'all') query.append('type', params.type);
@@ -177,3 +178,7 @@ export const api = {
     return data;
   }
 };
+
+// Se o Supabase estiver com a chave anônima configurada, usa o Supabase.
+// Caso contrário, faz fallback para a API Node/Express.
+export const api = isSupabaseConfigured ? supabaseApi : httpApi;
