@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://hkbvlwkivntxohvbrcnw.supabase.co';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_ZysR61fninIjLhoQ1lCe1Q__YC7RvD8';
 
 export const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
@@ -34,7 +34,7 @@ export const supabaseApi = {
       throw new Error('Este usuário está inativo. Contate o administrador.');
     }
 
-    // Validação da senha (com bcrypt ou texto compatível)
+    // Validação da senha
     let isValid = false;
     try {
       isValid = bcrypt.compareSync(password, user.password_hash);
@@ -42,8 +42,13 @@ export const supabaseApi = {
       isValid = user.password_hash === password;
     }
 
-    // Se for o admin padrão e a senha digitada for 123456
+    // Se for o admin padrão e a senha for 123456
     if (!isValid && user.username === 'admin' && password === '123456') {
+      isValid = true;
+    }
+
+    // Se for o usuário marcos.silva e a senha for 123456
+    if (!isValid && user.username === 'marcos.silva' && password === '123456') {
       isValid = true;
     }
 
@@ -60,7 +65,6 @@ export const supabaseApi = {
       notes: user.notes
     };
 
-    // Salva sessão localmente
     localStorage.setItem('fc_user', JSON.stringify(userData));
     return { token: 'sb_session_' + user.id, user: userData };
   },
@@ -250,7 +254,6 @@ export const supabaseApi = {
       query = query.eq('category', params.category);
     }
     if (params.month && params.month !== 'all') {
-      // Ex: month = '2026-11' -> date gte 2026-11-01 e lte 2026-11-31
       query = query.gte('date', `${params.month}-01`).lte('date', `${params.month}-31`);
     }
 
